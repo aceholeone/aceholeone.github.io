@@ -554,29 +554,51 @@
       });
     }
 
-    async function loadRepoData() {
-      if (!ghConfig.owner || !ghConfig.repo) {
+     async function loadRepoData() {
+      // 1. Check local storage first for immediate instant display on same browser
+      const cachedState = localStorage.getItem("lunch_cached_state");
+      if (cachedState) {
         try {
-          const res = await fetch("data.json?cache_bust=" + Date.now());
-          if (res.ok) state = await res.json();
+          state = JSON.parse(cachedState);
+          document.getElementById("email1").value = state.email1 || "";
+          document.getElementById("email2").value = state.email2 || "";
         } catch (e) {
-          console.error("Local data.json load failed:", e);
+          console.error("Local cache parse error:", e);
+        }
+      }
+
+      // If GitHub config is incomplete, fallback to local fetch
+      if (!ghConfig.owner || !ghConfig.repo) {
+        if (!cachedState) {
+          try {
+            const res = await fetch("data.json?t=" + Date.now(), { cache: "no-store" });
+            if (res.ok) state = await res.json();
+          } catch (e) {
+            console.error("Local data.json load failed:", e);
+          }
         }
         return;
       }
 
-      const url = `https://api.github.com/repos/${ghConfig.owner}/${ghConfig.repo}/contents/data.json?ref=${ghConfig.branch}&cache_bust=${Date.now()}`;
+      // 2. Fetch directly from the GitHub REST API (completely bypasses GitHub Pages 10-min cache)
+      const url = `https://api.github.com/repos/${ghConfig.owner}/${ghConfig.repo}/contents/data.json?ref=${ghConfig.branch}&_cb=${Date.now()}`;
       try {
-        const headers = { "Accept": "application/vnd.github.v3+json" };
+        const headers = { 
+          "Accept": "application/vnd.github.v3+json",
+          "Cache-Control": "no-cache"
+        };
         if (ghConfig.token) headers["Authorization"] = `token ${ghConfig.token}`;
 
-        const res = await fetch(url, { headers });
+        const res = await fetch(url, { headers, cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
           const decoded = decodeURIComponent(escape(atob(data.content)));
           state = JSON.parse(decoded);
+          localStorage.setItem("lunch_cached_state", JSON.stringify(state)); // update local cache
           document.getElementById("email1").value = state.email1 || "";
           document.getElementById("email2").value = state.email2 || "";
+        } else {
+          console.warn("GitHub API load status:", res.status);
         }
       } catch (err) {
         console.error("GitHub fetch error:", err);
@@ -584,7 +606,11 @@
     }
 
     async function commitDataToRepo(commitMessage) {
+      // Immediately cache locally so same-browser reload never loses data
+      localStorage.setItem("lunch_cached_state", JSON.stringify(state));
+
       if (!ghConfig.owner || !ghConfig.repo || !ghConfig.token) {
+        console.warn("GitHub credentials incomplete; state saved locally only.");
         return false;
       }
 
@@ -596,8 +622,12 @@
       };
 
       try {
+        // Get latest SHA
         let sha = null;
-        const getRes = await fetch(`${fileUrl}?ref=${ghConfig.branch}&cache_bust=${Date.now()}`, { headers });
+        const getRes = await fetch(`${fileUrl}?ref=${ghConfig.branch}&_cb=${Date.now()}`, { 
+          headers, 
+          cache: "no-store" 
+        });
         if (getRes.ok) {
           const fileInfo = await getRes.json();
           sha = fileInfo.sha;
@@ -619,11 +649,52 @@
           body: JSON.stringify(payload)
         });
 
-        return putRes.ok;
+        if (!putRes.ok) {
+          const errData = await putRes.json();
+          console.error("GitHub Commit Rejected:", errData);
+          return false;
+        }
+        return true;
       } catch (err) {
-        console.error("Commit failed:", err);
+        console.error("Commit network error:", err);
         return false;
       }
+    }
+    
+    async function sendOrderAndCommit() {
+      const btn = document.getElementById("sendBtn");
+      btn.disabled = true;
+      btn.textContent = "Saving...";
+
+      // 1. Commit state (and write to local cache)
+      await commitDataToRepo("Submit lunch order selection");
+
+      // 2. Prep mail details
+      const recipients = [state.email1, state.email2].filter(e => e && e.length > 0).join(",");
+      const selectedSet = new Set(state.selectedIds || []);
+      const chosenNames = (state.foods || [])
+        .filter(item => selectedSet.has(item.id))
+        .map(item => `• ${item.name}`);
+
+      const notes = (state.specialNotes || "").trim();
+
+      let body = "Hi!\n\nHere is what I would like for lunch today:\n\n";
+      body += chosenNames.length > 0 ? chosenNames.join("\n") + "\n" : "(No standard items selected)\n";
+
+      if (notes.length > 0) {
+        body += `\nSpecial Request / Notes:\n${notes}\n`;
+      }
+
+      body += "\nThank you!";
+
+      const subject = encodeURIComponent("Today's Lunch Order 🥪");
+      const encodedBody = encodeURIComponent(body);
+
+      btn.disabled = false;
+      btn.textContent = "Send Lunch Order 🥪";
+
+      // 3. Open Email App
+      window.location.href = `mailto:${recipients}?subject=${subject}&body=${encodedBody}`;
     }
 
     function renderMainList() {
