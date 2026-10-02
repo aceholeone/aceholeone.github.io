@@ -1,0 +1,16 @@
+{
+  "email1": "rickmares@gmail.com",
+  "email2": "cynthiamares9@gmail.com",
+  "specialNotes": "",
+  "selectedIds": [],
+  "foods": [
+    { "id": "1", "name": "Turkey & Cheese Sandwich", "available": true },
+    { "id": "2", "name": "PB&J Sandwich", "available": true },
+    { "id": "3", "name": "Mac & Cheese", "available": true },
+    { "id": "4", "name": "Apple Slices", "available": true },
+    { "id": "5", "name": "Carrot Sticks", "available": true },
+    { "id": "6", "name": "Yogurt Tube", "available": true },
+    { "id": "7", "name": "Goldfish Crackers", "available": true },
+    { "id": "8", "name": "Juice Box", "available": true }
+  ]
+}
