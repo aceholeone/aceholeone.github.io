@@ -421,33 +421,52 @@
   </div>
 
   <div id="settingsModal" class="modal-overlay">
-    <div class="modal-sheet">
-      <div class="modal-header">
-        <h2>Pantry Settings</h2>
-        <button class="btn-done" onclick="closeSettings()">Done</button>
-      </div>
+  <div class="modal-sheet">
+    
+    <!-- Pinned Header (Stays visible while scrolling) -->
+    <div class="modal-header">
+      <h2>Pantry Settings</h2>
+      <button class="btn-done" onclick="closeSettings()">Done</button>
+    </div>
+
+    <!-- Scrollable Content Area -->
+    <div class="modal-body">
+      
+      <!-- If using Version 2, your GitHub fields stay here -->
 
       <div class="section-title-wrap">
-        <span class="section-title">GitHub Repo Connection</span>
+        <span class="section-title">Recipient Parent Emails</span>
       </div>
       <div class="card">
         <div class="field-row">
-          <label>Owner / Username</label>
-          <input type="text" id="ghOwner" placeholder="your-github-username">
+          <label>Parent 1</label>
+          <input type="email" id="email1" placeholder="parent1@example.com">
         </div>
         <div class="field-row">
-          <label>Repository Name</label>
-          <input type="text" id="ghRepo" placeholder="lunch-picker">
-        </div>
-        <div class="field-row">
-          <label>Branch</label>
-          <input type="text" id="ghBranch" placeholder="main">
-        </div>
-        <div class="field-row">
-          <label>Personal Access Token (PAT)</label>
-          <input type="password" id="ghToken" placeholder="github_pat_...">
+          <label>Parent 2</label>
+          <input type="email" id="email2" placeholder="parent2@example.com">
         </div>
       </div>
+
+      <div class="section-title-wrap">
+        <span class="section-title">Add Food Item</span>
+      </div>
+      <div class="card">
+        <div class="add-row">
+          <input type="text" id="newFoodInput" placeholder="Item name (e.g. Pretzels)">
+          <button class="btn-add" onclick="addNewFood()">Add</button>
+        </div>
+      </div>
+
+      <div class="section-title-wrap">
+        <span class="section-title">Item Availability</span>
+      </div>
+      <div class="card" id="settingsFoodList"></div>
+
+    </div><!-- End .modal-body -->
+    
+  </div>
+</div>
 
       <div class="section-title-wrap">
         <span class="section-title">Recipient Parent Emails</span>
