@@ -3,20 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Lunch Order</title>
+  <title>Lunch Order v2</title>
 
-  <!-- iOS Home Screen / PWA Configuration -->
+  <!-- iOS PWA Configuration -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Lunch">
   <meta name="theme-color" content="#f2f2f7">
 
-  <!-- App Icon (SVG Data URI) -->
   <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23007AFF'/%3E%3Ctext x='50%25' y='55%25' font-size='105' text-anchor='middle' dominant-baseline='central'%3E%F0%9F%A5%AA%3C/text%3E%3C/svg%3E">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23007AFF'/%3E%3Ctext x='50%25' y='55%25' font-size='105' text-anchor='middle' dominant-baseline='central'%3E%F0%9F%A5%AA%3C/text%3E%3C/svg%3E">
-
-  <!-- Embedded Web App Manifest -->
-  <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Lunch%20Order%22%2C%22short_name%22%3A%22Lunch%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23f2f2f7%22%2C%22theme_color%22%3A%22%23007AFF%22%7D">
 
   <style>
     :root {
@@ -80,13 +76,28 @@
       padding: 8px 16px 120px 16px;
     }
 
+    .section-title-wrap {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 18px 12px 6px 12px;
+    }
+
     .section-title {
       font-size: 13px;
       text-transform: uppercase;
       color: var(--text-secondary);
-      margin: 18px 0 6px 12px;
       font-weight: 600;
       letter-spacing: -0.2px;
+    }
+
+    .btn-clear {
+      background: none;
+      border: none;
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
     }
 
     .card {
@@ -96,7 +107,6 @@
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
 
-    /* Food List Rows */
     .food-row {
       display: flex;
       align-items: center;
@@ -123,8 +133,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
       flex-shrink: 0;
+      transition: all 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
     }
 
     .food-row.checked .checkbox {
@@ -151,7 +161,6 @@
     .food-name {
       font-size: 17px;
       flex: 1;
-      font-weight: 400;
     }
 
     .food-row.out-of-stock {
@@ -171,10 +180,8 @@
       background: #e5e5ea;
       padding: 3px 7px;
       border-radius: 6px;
-      letter-spacing: 0.5px;
     }
 
-    /* Textarea */
     textarea {
       width: 100%;
       height: 85px;
@@ -187,7 +194,6 @@
       -webkit-user-select: text;
     }
 
-    /* Bottom Action Bar */
     .bottom-bar {
       position: fixed;
       bottom: 0;
@@ -214,16 +220,13 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
     }
 
     .btn-send:disabled {
       background: var(--primary-disabled);
-      box-shadow: none;
       cursor: not-allowed;
     }
 
-    /* Modal / Settings Overlay */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -243,7 +246,6 @@
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1);
     }
 
     .modal-header {
@@ -294,7 +296,6 @@
       cursor: pointer;
     }
 
-    /* iOS Toggle Switch */
     .switch-row {
       display: flex;
       justify-content: space-between;
@@ -354,7 +355,6 @@
       background-color: white;
       transition: 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
       border-radius: 50%;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
     input:checked + .slider {
@@ -365,16 +365,16 @@
       transform: translateX(20px);
     }
 
-    .email-field {
+    .field-row {
       padding: 10px 14px;
       border-bottom: 0.5px solid var(--border);
     }
 
-    .email-field:last-child {
+    .field-row:last-child {
       border-bottom: none;
     }
 
-    .email-field label {
+    .field-row label {
       font-size: 12px;
       color: var(--text-secondary);
       display: block;
@@ -382,7 +382,7 @@
       text-transform: uppercase;
     }
 
-    .email-field input {
+    .field-row input {
       width: 100%;
       border: none;
       font-size: 16px;
@@ -400,22 +400,26 @@
   </header>
 
   <main>
-    <div class="section-title">Select Food Items</div>
+    <div class="section-title-wrap">
+      <span class="section-title">Select Food Items</span>
+      <button class="btn-clear" onclick="clearAllSelections()">Uncheck All</button>
+    </div>
     <div class="card" id="foodList"></div>
 
-    <div class="section-title">Special Requests / Notes</div>
+    <div class="section-title-wrap">
+      <span class="section-title">Special Requests / Notes</span>
+    </div>
     <div class="card">
-      <textarea id="specialNotes" placeholder="Cut in triangles, extra napkin, fruit snack, etc..."></textarea>
+      <textarea id="specialNotes" placeholder="Cut in triangles, extra napkins, fruit snack, etc..."></textarea>
     </div>
   </main>
 
   <div class="bottom-bar">
-    <button id="sendBtn" class="btn-send" onclick="sendOrder()" disabled>
+    <button id="sendBtn" class="btn-send" onclick="sendOrderAndCommit()" disabled>
       Send Lunch Order 🥪
     </button>
   </div>
 
-  <!-- Settings Sheet -->
   <div id="settingsModal" class="modal-overlay">
     <div class="modal-sheet">
       <div class="modal-header">
@@ -423,19 +427,45 @@
         <button class="btn-done" onclick="closeSettings()">Done</button>
       </div>
 
-      <div class="section-title">Recipient Parent Emails</div>
+      <div class="section-title-wrap">
+        <span class="section-title">GitHub Repo Connection</span>
+      </div>
       <div class="card">
-        <div class="email-field">
+        <div class="field-row">
+          <label>Owner / Username</label>
+          <input type="text" id="ghOwner" placeholder="your-github-username">
+        </div>
+        <div class="field-row">
+          <label>Repository Name</label>
+          <input type="text" id="ghRepo" placeholder="lunch-picker">
+        </div>
+        <div class="field-row">
+          <label>Branch</label>
+          <input type="text" id="ghBranch" placeholder="main">
+        </div>
+        <div class="field-row">
+          <label>Personal Access Token (PAT)</label>
+          <input type="password" id="ghToken" placeholder="github_pat_...">
+        </div>
+      </div>
+
+      <div class="section-title-wrap">
+        <span class="section-title">Recipient Parent Emails</span>
+      </div>
+      <div class="card">
+        <div class="field-row">
           <label>Parent 1</label>
           <input type="email" id="email1" placeholder="parent1@example.com">
         </div>
-        <div class="email-field">
+        <div class="field-row">
           <label>Parent 2</label>
           <input type="email" id="email2" placeholder="parent2@example.com">
         </div>
       </div>
 
-      <div class="section-title">Add Food Item</div>
+      <div class="section-title-wrap">
+        <span class="section-title">Add Food Item</span>
+      </div>
       <div class="card">
         <div class="add-row">
           <input type="text" id="newFoodInput" placeholder="Item name (e.g. Pretzels)">
@@ -443,71 +473,151 @@
         </div>
       </div>
 
-      <div class="section-title">Item Availability</div>
+      <div class="section-title-wrap">
+        <span class="section-title">Item Availability</span>
+      </div>
       <div class="card" id="settingsFoodList"></div>
     </div>
   </div>
 
   <script>
-    const DEFAULT_FOODS = [
-      { id: "1", name: "Turkey & Cheese Sandwich", available: true },
-      { id: "2", name: "PB&J Sandwich", available: true },
-      { id: "3", name: "Mac & Cheese", available: true },
-      { id: "4", name: "Apple Slices", available: true },
-      { id: "5", name: "Carrot Sticks", available: true },
-      { id: "6", name: "Yogurt Tube", available: true },
-      { id: "7", name: "Goldfish Crackers", available: true },
-      { id: "8", name: "Juice Box", available: true }
-    ];
+    let state = {
+      email1: "",
+      email2: "",
+      specialNotes: "",
+      selectedIds: [],
+      foods: []
+    };
 
-    // State
-    let foodItems = [];
-    let selectedIds = new Set(); // Ephemeral: resets on every launch/refresh
+    let ghConfig = {
+      owner: "",
+      repo: "",
+      branch: "main",
+      token: ""
+    };
 
-    // Initialize
-    function init() {
-      const savedFoods = localStorage.getItem("lunch_food_items");
-      if (savedFoods) {
-        try {
-          foodItems = JSON.parse(savedFoods);
-        } catch (e) {
-          foodItems = [...DEFAULT_FOODS];
-        }
-      } else {
-        foodItems = [...DEFAULT_FOODS];
-        saveFoods();
-      }
+    async function init() {
+      // 1. Load Local GitHub Settings
+      ghConfig.owner = localStorage.getItem("lunch_gh_owner") || "";
+      ghConfig.repo = localStorage.getItem("lunch_gh_repo") || "";
+      ghConfig.branch = localStorage.getItem("lunch_gh_branch") || "main";
+      ghConfig.token = localStorage.getItem("lunch_gh_token") || "";
 
-      document.getElementById("email1").value = localStorage.getItem("lunch_email_1") || "parent1@example.com";
-      document.getElementById("email2").value = localStorage.getItem("lunch_email_2") || "parent2@example.com";
+      document.getElementById("ghOwner").value = ghConfig.owner;
+      document.getElementById("ghRepo").value = ghConfig.repo;
+      document.getElementById("ghBranch").value = ghConfig.branch;
+      document.getElementById("ghToken").value = ghConfig.token;
+
+      // 2. Fetch Data from the Repo or cache
+      await loadRepoData();
 
       renderMainList();
       updateSendButton();
 
-      document.getElementById("specialNotes").addEventListener("input", updateSendButton);
+      const notesEl = document.getElementById("specialNotes");
+      notesEl.value = state.specialNotes || "";
+      notesEl.addEventListener("input", () => {
+        state.specialNotes = notesEl.value;
+        updateSendButton();
+      });
     }
 
-    function saveFoods() {
-      localStorage.setItem("lunch_food_items", JSON.stringify(foodItems));
+    async function loadRepoData() {
+      if (!ghConfig.owner || !ghConfig.repo) {
+        // Fallback to local default data.json if GitHub config isn't populated
+        try {
+          const res = await fetch("data.json?cache_bust=" + Date.now());
+          if (res.ok) state = await res.json();
+        } catch (e) {
+          console.error("Local load failed:", e);
+        }
+        return;
+      }
+
+      const url = `https://api.github.com/repos/${ghConfig.owner}/${ghConfig.repo}/contents/data.json?ref=${ghConfig.branch}&cache_bust=${Date.now()}`;
+      try {
+        const headers = { "Accept": "application/vnd.github.v3+json" };
+        if (ghConfig.token) headers["Authorization"] = `token ${ghConfig.token}`;
+
+        const res = await fetch(url, { headers });
+        if (res.ok) {
+          const data = await res.json();
+          // GitHub API returns Base64 encoded file content
+          const decoded = decodeURIComponent(escape(atob(data.content)));
+          state = JSON.parse(decoded);
+          document.getElementById("email1").value = state.email1 || "";
+          document.getElementById("email2").value = state.email2 || "";
+        }
+      } catch (err) {
+        console.error("GitHub fetch error:", err);
+      }
+    }
+
+    async function commitDataToRepo(commitMessage) {
+      if (!ghConfig.owner || !ghConfig.repo || !ghConfig.token) {
+        return false;
+      }
+
+      const fileUrl = `https://api.github.com/repos/${ghConfig.owner}/${ghConfig.repo}/contents/data.json`;
+      const headers = {
+        "Authorization": `token ${ghConfig.token}`,
+        "Accept": "application/vnd.github.v3+json",
+        "Content-Type": "application/json"
+      };
+
+      try {
+        // 1. Get current SHA
+        let sha = null;
+        const getRes = await fetch(`${fileUrl}?ref=${ghConfig.branch}&cache_bust=${Date.now()}`, { headers });
+        if (getRes.ok) {
+          const fileInfo = await getRes.json();
+          sha = fileInfo.sha;
+        }
+
+        // 2. Put file update
+        const rawContent = JSON.stringify(state, null, 2);
+        const encodedContent = btoa(unescape(encodeURIComponent(rawContent)));
+
+        const payload = {
+          message: commitMessage || "Update lunch order data.json",
+          content: encodedContent,
+          branch: ghConfig.branch
+        };
+        if (sha) payload.sha = sha;
+
+        const putRes = await fetch(fileUrl, {
+          method: "PUT",
+          headers: headers,
+          body: JSON.stringify(payload)
+        });
+
+        return putRes.ok;
+      } catch (err) {
+        console.error("Commit failed:", err);
+        return false;
+      }
     }
 
     function renderMainList() {
       const container = document.getElementById("foodList");
       container.innerHTML = "";
+      const selectedSet = new Set(state.selectedIds || []);
 
-      foodItems.forEach(item => {
+      (state.foods || []).forEach(item => {
+        const isChecked = selectedSet.has(item.id);
         const row = document.createElement("div");
-        row.className = `food-row ${item.available ? "" : "out-of-stock"} ${selectedIds.has(item.id) ? "checked" : ""}`;
+        row.className = `food-row ${item.available ? "" : "out-of-stock"} ${isChecked ? "checked" : ""}`;
 
         row.onclick = () => {
           if (!item.available) return;
-          if (selectedIds.has(item.id)) {
-            selectedIds.delete(item.id);
+          if (selectedSet.has(item.id)) {
+            selectedSet.delete(item.id);
             row.classList.remove("checked");
           } else {
-            selectedIds.add(item.id);
+            selectedSet.add(item.id);
             row.classList.add("checked");
           }
+          state.selectedIds = Array.from(selectedSet);
           updateSendButton();
         };
 
@@ -523,11 +633,19 @@
       });
     }
 
+    function clearAllSelections() {
+      state.selectedIds = [];
+      state.specialNotes = "";
+      document.getElementById("specialNotes").value = "";
+      renderMainList();
+      updateSendButton();
+    }
+
     function renderSettingsList() {
       const container = document.getElementById("settingsFoodList");
       container.innerHTML = "";
 
-      foodItems.forEach(item => {
+      (state.foods || []).forEach(item => {
         const row = document.createElement("div");
         row.className = "switch-row";
 
@@ -547,13 +665,12 @@
     }
 
     function toggleAvailability(id, isAvailable) {
-      const item = foodItems.find(f => f.id === id);
+      const item = state.foods.find(f => f.id === id);
       if (item) {
         item.available = isAvailable;
         if (!isAvailable) {
-          selectedIds.delete(id);
+          state.selectedIds = (state.selectedIds || []).filter(itemId => itemId !== id);
         }
-        saveFoods();
         renderMainList();
         updateSendButton();
       }
@@ -564,32 +681,30 @@
       const name = input.value.trim();
       if (!name) return;
 
-      const newItem = {
+      if (!state.foods) state.foods = [];
+      state.foods.push({
         id: Date.now().toString(),
         name: name,
         available: true
-      };
+      });
 
-      foodItems.push(newItem);
-      saveFoods();
       input.value = "";
       renderSettingsList();
       renderMainList();
     }
 
     function deleteFood(id) {
-      foodItems = foodItems.filter(f => f.id !== id);
-      selectedIds.delete(id);
-      saveFoods();
+      state.foods = (state.foods || []).filter(f => f.id !== id);
+      state.selectedIds = (state.selectedIds || []).filter(itemId => itemId !== id);
       renderSettingsList();
       renderMainList();
       updateSendButton();
     }
 
     function updateSendButton() {
-      const notes = document.getElementById("specialNotes").value.trim();
-      const hasSelections = selectedIds.size > 0 || notes.length > 0;
-      document.getElementById("sendBtn").disabled = !hasSelections;
+      const notes = (state.specialNotes || "").trim();
+      const count = (state.selectedIds || []).length;
+      document.getElementById("sendBtn").disabled = (count === 0 && notes.length === 0);
     }
 
     function openSettings() {
@@ -597,22 +712,45 @@
       document.getElementById("settingsModal").style.display = "flex";
     }
 
-    function closeSettings() {
-      localStorage.setItem("lunch_email_1", document.getElementById("email1").value.trim());
-      localStorage.setItem("lunch_email_2", document.getElementById("email2").value.trim());
+    async function closeSettings() {
+      // Save local GitHub credentials
+      ghConfig.owner = document.getElementById("ghOwner").value.trim();
+      ghConfig.repo = document.getElementById("ghRepo").value.trim();
+      ghConfig.branch = document.getElementById("ghBranch").value.trim() || "main";
+      ghConfig.token = document.getElementById("ghToken").value.trim();
+
+      localStorage.setItem("lunch_gh_owner", ghConfig.owner);
+      localStorage.setItem("lunch_gh_repo", ghConfig.repo);
+      localStorage.setItem("lunch_gh_branch", ghConfig.branch);
+      localStorage.setItem("lunch_gh_token", ghConfig.token);
+
+      state.email1 = document.getElementById("email1").value.trim();
+      state.email2 = document.getElementById("email2").value.trim();
+
       document.getElementById("settingsModal").style.display = "none";
+
+      // Commit settings changes to GitHub repo
+      if (ghConfig.token) {
+        await commitDataToRepo("Update pantry settings via app");
+      }
     }
 
-    function sendOrder() {
-      const email1 = localStorage.getItem("lunch_email_1") || "parent1@example.com";
-      const email2 = localStorage.getItem("lunch_email_2") || "parent2@example.com";
-      const recipients = [email1, email2].filter(e => e.length > 0).join(",");
+    async function sendOrderAndCommit() {
+      const btn = document.getElementById("sendBtn");
+      btn.disabled = true;
+      btn.textContent = "Committing & Sending...";
 
-      const chosenNames = foodItems
-        .filter(item => selectedIds.has(item.id))
+      // 1. Commit the active selection to data.json on GitHub
+      await commitDataToRepo("Submit lunch order selection");
+
+      // 2. Open Mail app
+      const recipients = [state.email1, state.email2].filter(e => e && e.length > 0).join(",");
+      const selectedSet = new Set(state.selectedIds || []);
+      const chosenNames = (state.foods || [])
+        .filter(item => selectedSet.has(item.id))
         .map(item => `• ${item.name}`);
 
-      const notes = document.getElementById("specialNotes").value.trim();
+      const notes = (state.specialNotes || "").trim();
 
       let body = "Hi!\n\nHere is what I would like for lunch today:\n\n";
       body += chosenNames.length > 0 ? chosenNames.join("\n") + "\n" : "(No standard items selected)\n";
@@ -626,7 +764,9 @@
       const subject = encodeURIComponent("Today's Lunch Order 🥪");
       const encodedBody = encodeURIComponent(body);
 
-      // Triggers native iOS Mail or the device's default mail client
+      btn.disabled = false;
+      btn.textContent = "Send Lunch Order 🥪";
+
       window.location.href = `mailto:${recipients}?subject=${subject}&body=${encodedBody}`;
     }
 
