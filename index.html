@@ -3,16 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Lunch Order v2</title>
+  <title>Lunch Order</title>
 
-  <!-- iOS PWA Configuration -->
+  <!-- Mobile Web App & PWA Configuration -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Lunch">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#f2f2f7">
 
   <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23007AFF'/%3E%3Ctext x='50%25' y='55%25' font-size='105' text-anchor='middle' dominant-baseline='central'%3E%F0%9F%A5%AA%3C/text%3E%3C/svg%3E">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23007AFF'/%3E%3Ctext x='50%25' y='55%25' font-size='105' text-anchor='middle' dominant-baseline='central'%3E%F0%9F%A5%AA%3C/text%3E%3C/svg%3E">
+
+  <!-- Embedded Web App Manifest for Android Chrome & iOS -->
+  <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Lunch%20Order%22%2C%22short_name%22%3A%22Lunch%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23f2f2f7%22%2C%22theme_color%22%3A%22%23007AFF%22%7D">
 
   <style>
     :root {
@@ -33,9 +37,7 @@
       -webkit-tap-highlight-color: transparent;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", Helvetica, Arial, sans-serif;
-      user-select: none;
-      -webkit-user-select: none;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
     body {
@@ -46,6 +48,8 @@
       flex-direction: column;
       padding-top: var(--safe-top);
       padding-bottom: var(--safe-bottom);
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     header {
@@ -53,6 +57,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 16px 20px 8px 20px;
+      flex-shrink: 0;
     }
 
     header h1 {
@@ -71,9 +76,11 @@
     }
 
     main {
-      flex: 1;
+      flex: 1 1 auto;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       padding: 8px 16px 120px 16px;
+      touch-action: pan-y;
     }
 
     .section-title-wrap {
@@ -107,6 +114,7 @@
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
 
+    /* Food List Rows */
     .food-row {
       display: flex;
       align-items: center;
@@ -204,6 +212,7 @@
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border-top: 0.5px solid rgba(0, 0, 0, 0.1);
+      z-index: 50;
     }
 
     .btn-send {
@@ -227,7 +236,7 @@
       cursor: not-allowed;
     }
 
-    /* Modal / Settings Overlay */
+    /* Fixed Scrollable Modal Styles */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -235,14 +244,11 @@
       z-index: 100;
       display: none;
       align-items: flex-end;
-      /* Prevent background body scroll while modal is open */
-      touch-action: none;
     }
 
     .modal-sheet {
       background: var(--bg);
       width: 100%;
-      /* Use explicit height with a hard cap */
       height: 90vh;
       max-height: 90vh;
       border-top-left-radius: 20px;
@@ -252,7 +258,6 @@
       flex-direction: column;
     }
 
-    /* Make the header stay pinned to the top while scrolling */
     .modal-header {
       display: flex;
       justify-content: space-between;
@@ -267,17 +272,7 @@
       font-size: 20px;
       font-weight: 700;
     }
-    /* Scrollable container for modal contents */
-    .modal-body {
-      flex: 1 1 auto;
-      min-height: 0; /* Critical for flex child scrolling */
-      overflow-y: scroll;
-      -webkit-overflow-scrolling: touch; /* iOS inertial scroll */
-      touch-action: pan-y; /* Re-enable vertical touch drag */
-      user-select: auto;
-      -webkit-user-select: auto;
-      padding: 12px 16px calc(60px + var(--safe-bottom)) 16px; /* Generous bottom bumper */
-    }
+
     .btn-done {
       background: none;
       border: none;
@@ -285,6 +280,17 @@
       font-size: 17px;
       font-weight: 600;
       cursor: pointer;
+    }
+
+    .modal-body {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: scroll;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
+      user-select: auto;
+      -webkit-user-select: auto;
+      padding: 12px 16px calc(60px + var(--safe-bottom)) 16px;
     }
 
     .add-row {
@@ -336,8 +342,9 @@
       background: none;
       border: none;
       color: var(--danger);
-      font-size: 18px;
+      font-size: 20px;
       cursor: pointer;
+      line-height: 1;
     }
 
     .switch {
@@ -398,6 +405,7 @@
       display: block;
       margin-bottom: 4px;
       text-transform: uppercase;
+      font-weight: 500;
     }
 
     .field-row input {
@@ -407,6 +415,7 @@
       outline: none;
       user-select: text;
       -webkit-user-select: text;
+      background: transparent;
     }
   </style>
 </head>
@@ -438,82 +447,68 @@
     </button>
   </div>
 
+  <!-- Settings Sheet -->
   <div id="settingsModal" class="modal-overlay">
-  <div class="modal-sheet">
-    
-    <!-- Pinned Header (Stays visible while scrolling) -->
-    <div class="modal-header">
-      <h2>Pantry Settings</h2>
-      <button class="btn-done" onclick="closeSettings()">Done</button>
-    </div>
-
-    <!-- Scrollable Content Area -->
-    <div class="modal-body">
-      
-      <!-- If using Version 2, your GitHub fields stay here -->
-
-      <div class="section-title-wrap">
-        <span class="section-title">Recipient Parent Emails</span>
+    <div class="modal-sheet">
+      <!-- Pinned Header -->
+      <div class="modal-header">
+        <h2>Pantry Settings</h2>
+        <button class="btn-done" onclick="closeSettings()">Done</button>
       </div>
-      <div class="card">
-        <div class="field-row">
-          <label>Parent 1</label>
-          <input type="email" id="email1" placeholder="parent1@example.com">
+
+      <!-- Independently Scrollable Body -->
+      <div class="modal-body">
+        <div class="section-title-wrap">
+          <span class="section-title">GitHub Repo Connection</span>
         </div>
-        <div class="field-row">
-          <label>Parent 2</label>
-          <input type="email" id="email2" placeholder="parent2@example.com">
+        <div class="card">
+          <div class="field-row">
+            <label>Owner / Username</label>
+            <input type="text" id="ghOwner" placeholder="your-github-username">
+          </div>
+          <div class="field-row">
+            <label>Repository Name</label>
+            <input type="text" id="ghRepo" placeholder="lunch-picker">
+          </div>
+          <div class="field-row">
+            <label>Branch</label>
+            <input type="text" id="ghBranch" placeholder="main">
+          </div>
+          <div class="field-row">
+            <label>Personal Access Token (PAT)</label>
+            <input type="password" id="ghToken" placeholder="github_pat_...">
+          </div>
         </div>
-      </div>
 
-      <div class="section-title-wrap">
-        <span class="section-title">Add Food Item</span>
-      </div>
-      <div class="card">
-        <div class="add-row">
-          <input type="text" id="newFoodInput" placeholder="Item name (e.g. Pretzels)">
-          <button class="btn-add" onclick="addNewFood()">Add</button>
+        <div class="section-title-wrap">
+          <span class="section-title">Recipient Parent Emails</span>
         </div>
-      </div>
-
-      <div class="section-title-wrap">
-        <span class="section-title">Item Availability</span>
-      </div>
-      <div class="card" id="settingsFoodList"></div>
-
-    </div><!-- End .modal-body -->
-    
-  </div>
-</div>
-
-      <div class="section-title-wrap">
-        <span class="section-title">Recipient Parent Emails</span>
-      </div>
-      <div class="card">
-        <div class="field-row">
-          <label>Parent 1</label>
-          <input type="email" id="email1" placeholder="parent1@example.com">
+        <div class="card">
+          <div class="field-row">
+            <label>Parent 1</label>
+            <input type="email" id="email1" placeholder="parent1@example.com">
+          </div>
+          <div class="field-row">
+            <label>Parent 2</label>
+            <input type="email" id="email2" placeholder="parent2@example.com">
+          </div>
         </div>
-        <div class="field-row">
-          <label>Parent 2</label>
-          <input type="email" id="email2" placeholder="parent2@example.com">
-        </div>
-      </div>
 
-      <div class="section-title-wrap">
-        <span class="section-title">Add Food Item</span>
-      </div>
-      <div class="card">
-        <div class="add-row">
-          <input type="text" id="newFoodInput" placeholder="Item name (e.g. Pretzels)">
-          <button class="btn-add" onclick="addNewFood()">Add</button>
+        <div class="section-title-wrap">
+          <span class="section-title">Add Food Item</span>
         </div>
-      </div>
+        <div class="card">
+          <div class="add-row">
+            <input type="text" id="newFoodInput" placeholder="Item name (e.g. Pretzels)">
+            <button class="btn-add" onclick="addNewFood()">Add</button>
+          </div>
+        </div>
 
-      <div class="section-title-wrap">
-        <span class="section-title">Item Availability</span>
+        <div class="section-title-wrap">
+          <span class="section-title">Item Availability</span>
+        </div>
+        <div class="card" id="settingsFoodList"></div>
       </div>
-      <div class="card" id="settingsFoodList"></div>
     </div>
   </div>
 
@@ -545,7 +540,7 @@
       document.getElementById("ghBranch").value = ghConfig.branch;
       document.getElementById("ghToken").value = ghConfig.token;
 
-      // 2. Fetch Data from the Repo or cache
+      // 2. Fetch Data from the Repo
       await loadRepoData();
 
       renderMainList();
@@ -561,12 +556,11 @@
 
     async function loadRepoData() {
       if (!ghConfig.owner || !ghConfig.repo) {
-        // Fallback to local default data.json if GitHub config isn't populated
         try {
           const res = await fetch("data.json?cache_bust=" + Date.now());
           if (res.ok) state = await res.json();
         } catch (e) {
-          console.error("Local load failed:", e);
+          console.error("Local data.json load failed:", e);
         }
         return;
       }
@@ -579,7 +573,6 @@
         const res = await fetch(url, { headers });
         if (res.ok) {
           const data = await res.json();
-          // GitHub API returns Base64 encoded file content
           const decoded = decodeURIComponent(escape(atob(data.content)));
           state = JSON.parse(decoded);
           document.getElementById("email1").value = state.email1 || "";
@@ -603,7 +596,6 @@
       };
 
       try {
-        // 1. Get current SHA
         let sha = null;
         const getRes = await fetch(`${fileUrl}?ref=${ghConfig.branch}&cache_bust=${Date.now()}`, { headers });
         if (getRes.ok) {
@@ -611,7 +603,6 @@
           sha = fileInfo.sha;
         }
 
-        // 2. Put file update
         const rawContent = JSON.stringify(state, null, 2);
         const encodedContent = btoa(unescape(encodeURIComponent(rawContent)));
 
@@ -750,7 +741,6 @@
     }
 
     async function closeSettings() {
-      // Save local GitHub credentials
       ghConfig.owner = document.getElementById("ghOwner").value.trim();
       ghConfig.repo = document.getElementById("ghRepo").value.trim();
       ghConfig.branch = document.getElementById("ghBranch").value.trim() || "main";
@@ -766,7 +756,6 @@
 
       document.getElementById("settingsModal").style.display = "none";
 
-      // Commit settings changes to GitHub repo
       if (ghConfig.token) {
         await commitDataToRepo("Update pantry settings via app");
       }
@@ -777,10 +766,8 @@
       btn.disabled = true;
       btn.textContent = "Committing & Sending...";
 
-      // 1. Commit the active selection to data.json on GitHub
       await commitDataToRepo("Submit lunch order selection");
 
-      // 2. Open Mail app
       const recipients = [state.email1, state.email2].filter(e => e && e.length > 0).join(",");
       const selectedSet = new Set(state.selectedIds || []);
       const chosenNames = (state.foods || [])
